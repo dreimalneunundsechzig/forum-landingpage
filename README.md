@@ -6,6 +6,27 @@ I dont Update it anymore, i coded it so my users cant access my forum because it
 i recomment to secure it using VueJS, ReactJS, or something like that if you recode it.
 have fun!
 
+
+
+# Screenshot
+<img width="1920" height="916" alt="image" src="https://github.com/user-attachments/assets/766cf1e3-41bc-401a-b845-f8ae32c51f04" />
+<img width="1918" height="917" alt="image" src="https://github.com/user-attachments/assets/55421322-6f64-40eb-abf9-2de2fb58f78a" />
+
+https://forum.mandora-rp.de/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 MIT License
 
 Copyright (c) 2025 dreimalneunundsechzig
