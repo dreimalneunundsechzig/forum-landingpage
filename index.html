@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width,initial-scale=1" name="viewport">
+<link href="favicon.ico" rel="icon">
+<title>Mandora Network Forum</title>
+  <style>
+    :root{
+      --fg: #ffffff;
+      --bg: #000000;
+      --accent: #003cff;
+      --accent-2: #7801ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans';
+      color:var(--fg);
+      background: var(--bg);
+      overflow-x:hidden;
+    }
+
+    .grid-overlay{
+      position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.12;
+      background:
+        linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px);
+      background-size: 60px 60px, 60px 60px;
+      transform: perspective(600px) rotateX(55deg) translateY(15vh);
+      transform-origin: top;
+      mask-image: linear-gradient(to top, transparent 0%, black 30%, black 70%, transparent 100%);
+    }
+
+    .intro{
+      position:fixed; inset:0; display:grid; place-items:center; background:#000; z-index:10;
+      transition: background-color 1.2s ease, opacity 1s ease;
+    }
+    .intro.hide-bg{ background-color: rgba(0,0,0,0); }
+
+    .intro-logo{
+      width:min(45vmin, 280px);
+      transform-origin:center;
+      animation: logoPop 2s cubic-bezier(.16,.84,.44,1) forwards;
+    }
+    @keyframes logoPop{
+      0% { transform: scale(.2) translateY(0); opacity:0; }
+      20%{ opacity:1; }
+      60% { transform: scale(1) translateY(0); opacity:1; }
+      100%{ transform: scale(1) translateY(-120px); opacity:0; }
+    }
+
+    .logo-over{
+      position:absolute; top:5%; left:50%; transform:translateX(-50%);
+      width:min(35vmin,200px);
+      opacity:0;
+      animation: logoFadeIn 2.5s ease forwards;
+      animation-delay:2s;
+    }
+    @keyframes logoFadeIn{
+      from{opacity:0; transform:translateX(-50%) translateY(-20px);} 
+      to{opacity:1; transform:translateX(-50%) translateY(0);} 
+    }
+
+    .stage{
+      min-height:100dvh;
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      padding: clamp(16px, 4vw, 40px);
+      gap: clamp(16px, 3vh, 28px);
+      position:relative;
+    }
+
+    .stage::before{
+      content:""; position:fixed; inset:0; z-index:-3;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0) 55%, rgba(0,0,0,0.8) 75%, #000 100%),
+        url('img/start-bgnew.png') center top / cover no-repeat;
+    }
+
+    .title{
+      font-weight:800; letter-spacing:.02em;
+      text-align:center;
+      font-size: clamp(28px, 6vw, 56px);
+      line-height:1.1;
+      text-shadow: 0 2px 24px rgba(49,225,255,.25);
+      white-space: nowrap;
+      user-select:none;
+    }
+    .caret{ display:inline-block; width: .55ch; border-right:2px solid var(--fg); margin-left:2px; animation: blink 1s steps(1,end) infinite; }
+    @keyframes blink { 50% { border-color: transparent; } }
+
+    .loader-wrap{
+      width:min(92vw, 560px);
+      perspective: 1000px;
+    }
+    .loader{
+      height: 16px; border-radius:12px; border:1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.06);
+      overflow:hidden; position:relative;
+      transform-style: preserve-3d;
+      transition: transform .45s ease;
+    }
+    .loader.flip{ transform: rotateY(180deg); }
+    .bar{ position:absolute; left:0; top:0; bottom:0; width:0%; border-radius:inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      animation: fill 2.8s ease-in-out infinite;
+    }
+    .loader.flip .bar{ animation: drain 2.8s ease-in-out infinite; }
+    @keyframes fill{ 0%{width:0%} 100%{width:100%} }
+    @keyframes drain{ 0%{width:100%} 100%{width:0%} }
+
+    .status{
+      font-size: clamp(14px, 2.5vw, 18px);
+      opacity:.9;
+      text-align:center;
+    }
+
+    .cta{
+      display:inline-flex; align-items:center; justify-content:center; gap:.6em;
+      padding: .9em 1.4em; border-radius:999px;     border: 1px solid rgb(0 81 255 / 20%);
+    background: rgb(1 77 255 / 6%);
+      color:#fff; text-decoration:none; font-weight:700; letter-spacing:.02em;
+      transform: translateZ(0);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      will-change: transform;
+      user-select:none;
+      margin: 0 0.5em;
+    }
+    .cta:hover{ transform: scale(1.06); box-shadow: 0 10px 40px rgba(128, 49, 255, 0.25); background: rgba(132, 0, 255, 0.12); border: 1px solid rgba(119, 0, 255, 0.2) }
+    .cta.spin{ animation: spin .6s ease both; }
+    @keyframes spin{ to{ transform: rotate(360deg) scale(1.06);} }
+
+    .sp-xxl{ height: clamp(16px, 6vh, 56px); }
+    .sp-lg{ height: clamp(12px, 3.5vh, 28px); }
+
+    .top-center{
+      margin-top: clamp(22vh, 28vh, 34vh);
+      display:flex; flex-direction:column; align-items:center; gap: clamp(12px, 3vh, 20px);
+    }
+
+    .safe{ padding-bottom: env(safe-area-inset-bottom); }
+
+    @media (prefers-reduced-motion: reduce){
+      .intro-logo{ animation: none; }
+      .logo-over{ animation:none; }
+      .bar{ animation: none; width:50%; }
+      .loader{ transition:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <div class="intro" id="intro">
+    <img src="img/logo.png" alt="Mandora Network Logo" class="intro-logo" id="introLogo" />
+  </div>
+
+  <main class="stage safe">
+    <img src="img/logo.png" alt="Mandora Logo" class="logo-over" />
+    <div class="top-center">
+      <h1 class="title" aria-live="polite"><span id="type"></span><span class="caret"></span></h1>
+      <div class="loader-wrap">
+        <div class="loader" id="loader"><div class="bar"></div></div>
+      </div>
+      <p class="status">Das Forum ist in Bearbeitung.</p>
+      <div>
+        <a class="cta" id="discordBtn" href="https://discord.gg/65waDGyUqj" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a class="cta" id="githubBtn" href="https://github.com/dreimalneunundsechzig/forum-landingpage/" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="sp-xxl"></div>
+  </main>
+
+  <script>
+    (function(){
+      const intro = document.getElementById('intro');
+      setTimeout(()=> intro.classList.add('hide-bg'), 1800);
+      setTimeout(()=> intro.style.display = 'none', 2800);
+    })();
+
+    (function(){
+      const el = document.getElementById('type');
+      const full = 'Mandora Network';
+      let txt = '', i = 0, deleting = false;
+      let minIndex = 1;
+
+      function tick(){
+        if(!deleting){
+          if(i < full.length){
+            txt = full.slice(0, ++i);
+            el.textContent = txt;
+          } else {
+            setTimeout(()=>{ deleting = true; }, 120);
+          }
+        } else {
+          if(i > minIndex){
+            txt = full.slice(0, --i);
+            el.textContent = txt;
+          } else {
+            deleting = false;
+          }
+        }
+        const delay = deleting ? 90 : 120;
+        setTimeout(tick, delay);
+      }
+      tick();
+    })();
+
+    (function(){
+      const loader = document.getElementById('loader');
+      let flipped = false;
+      function toggle(){
+        flipped = !flipped;
+        loader.classList.toggle('flip', flipped);
+      }
+      setInterval(toggle, 3000);
+    })();
+
+    (function(){
+      const btns = [document.getElementById('discordBtn'), document.getElementById('githubBtn')];
+      btns.forEach(btn => {
+        btn.addEventListener('click', ()=>{
+          btn.classList.remove('spin');
+          void btn.offsetWidth;
+          btn.classList.add('spin');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
